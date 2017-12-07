@@ -17,7 +17,7 @@ import static org.apache.storm.utils.Utils.sleep;
 
 public class PollSpout extends BaseRichSpout {
     public static final String POLL_DIR = "/home/trishlex/IdeaProjects/Storm/src/main/resources/in/";
-    public static final String PROCESSED_DIR = "/home/trishlex/IdeaProjects/Storm/src/main/resources/out";
+    public static final String PROCESSED_DIR = "/home/trishlex/IdeaProjects/Storm/src/main/resources/out/";
     public static final String SYNC_STREAM = "sync";
     public static final String WORDS_STREAM = "words";
     public static final String WORDS_FIELD = "words";
