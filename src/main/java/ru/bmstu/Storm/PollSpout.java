@@ -24,15 +24,15 @@ public class PollSpout extends BaseRichSpout {
 
     private SpoutOutputCollector spoutOutputCollector;
     private boolean isReading;
-    private File dir, currentFile;
-    private int ackCount, sendCount;
+    private File directory, currentFile;
+    private int ackCount, msgCount;
     private BufferedReader reader;
 
     public PollSpout() {
         ackCount = 0;
-        sendCount = 0;
+        msgCount = 0;
         isReading = false;
-        dir = new File(POLL_DIR);
+        directory = new File(POLL_DIR);
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -51,59 +51,53 @@ public class PollSpout extends BaseRichSpout {
                 String line = reader.readLine();
 
                 if (line != null) {
-                    spoutOutputCollector.emit(WORDS_STREAM, new Values(line), sendCount);
-                    sendCount++;
-                }
-
-                else {
-                    if (ackCount == sendCount) {
+                    spoutOutputCollector.emit(WORDS_STREAM, new Values(line), msgCount);
+                    msgCount++;
+                } else {
+                    if (ackCount == msgCount) {
                         File dest = new File(PROCESSED_DIR + currentFile.getName());
                         Files.move(currentFile, dest);
 
                         spoutOutputCollector.emit(SYNC_STREAM, new ArrayList<Object>());
                         ackCount = 0;
-                        sendCount = 0;
+                        msgCount = 0;
 
                         isReading = false;
                     }
                 }
-            }
-            catch (IOException e) {
+
+            } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-        else {
 
-            File files[] = dir.listFiles();
+        } else {
+            File files[] = directory.listFiles();
 
             if (files == null || files.length == 0) {
                 sleep(100);
-            }
 
-            else {
+            } else {
 
                 try {
                     currentFile = files[0];
                     reader = new BufferedReader
                             (new InputStreamReader
                                     (new FileInputStream(currentFile), Charsets.UTF_8));
-                }
-                catch (FileNotFoundException e) {
+                } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                }
-                finally {
+                } finally {
                     isReading = true;
                 }
             }
         }
     }
 
-    @Override
+
     public void ack(Object msgId) {
         ackCount++;
     }
 
-    @Override
+
     public void fail(Object msgId) {
         throw new RuntimeException("ack is failed");
     }

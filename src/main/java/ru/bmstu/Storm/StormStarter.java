@@ -6,17 +6,24 @@ import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 
 public class StormStarter {
+    public static final String GENERATOR = "generator";
+    public static final String SYNC = "sync";
+    public static final String WORDS = "words";
+    public static final String WORD_FIELD = "word";
+    public static final String SPLITTER_BOLT = "splitter";
+    public static final String COUNTER_BOLT = "counter";
 
     public static void main(String[] args) {
         TopologyBuilder builder = new TopologyBuilder();
 
-        builder.setSpout("generator", new PollSpout());
+        builder.setSpout(GENERATOR, new PollSpout());
 
-        builder.setBolt("splitter", new SplitBolt(), 10).shuffleGrouping("generator", "words");
+        builder.setBolt(SPLITTER_BOLT, new SplitBolt(), 10)
+                .shuffleGrouping(GENERATOR, WORDS);
 
-        builder.setBolt("counter", new WordCountBolt(), 1)
-                .fieldsGrouping("splitter", new Fields("word"))
-                .allGrouping("generator", "sync");
+        builder.setBolt(COUNTER_BOLT, new WordCountBolt(), 1)
+                .fieldsGrouping(SPLITTER_BOLT, new Fields(WORD_FIELD))
+                .allGrouping(GENERATOR, SYNC);
 
         Config conf = new Config();
 

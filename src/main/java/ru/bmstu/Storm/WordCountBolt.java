@@ -13,8 +13,7 @@ public class WordCountBolt extends BaseRichBolt {
     private OutputCollector outputCollector;
     private HashMap<String, Integer> table;
 
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-    }
+    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) { }
 
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
@@ -28,9 +27,7 @@ public class WordCountBolt extends BaseRichBolt {
                 System.out.println(key + " : " + table.get(key));
 
             table = new HashMap<String, Integer>();
-        }
-
-        else {
+        } else {
 
             String word = tuple.getStringByField(SplitBolt.WORD_FIELD);
             Integer count = table.get(word);
